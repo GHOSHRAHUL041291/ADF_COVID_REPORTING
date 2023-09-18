@@ -1,0 +1,27 @@
+{
+	"name": "ds_processed_weekly_hostpital_admissions_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_datalakecovidreporting",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Prod"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "ecds/hospital_admissions/weekly",
+				"fileSystem": "processed"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

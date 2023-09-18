@@ -1,0 +1,46 @@
+{
+	"name": "process_hospital_admissions_e2e",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hospital_Admissions_Daily",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_raw_to_processed_hospital_admissions",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Insert Into SQL Table Hospital Admissions Daily",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Hospital_Admissions_Daily",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_sql_hospitals_data_daily",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Master"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-09-06T06:00:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

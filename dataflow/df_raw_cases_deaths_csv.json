@@ -1,0 +1,123 @@
+{
+	"name": "df_raw_cases_deaths_csv",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_cases_deaths_raw_csv_datalake",
+						"type": "DatasetReference"
+					},
+					"name": "RawCasesDeathsFile"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_country_lookup",
+						"type": "DatasetReference"
+					},
+					"name": "RawCountryLookUpSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_processed_cases_deaths_csv",
+						"type": "DatasetReference"
+					},
+					"name": "SinkCasesDeathsProcessed"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterOnlEuropeContinent"
+				},
+				{
+					"name": "SelectRequiredFields"
+				},
+				{
+					"name": "PivotForIndicator"
+				},
+				{
+					"name": "LookUpCountry"
+				},
+				{
+					"name": "SelectSinkColumns",
+					"description": "reported_date, source, Count_confirmed cases, Count_deaths, country_code_2_digit, country_code_3_digit, continent'"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          country as string,",
+				"          country_code as string,",
+				"          continent as string,",
+				"          population as integer,",
+				"          indicator as string,",
+				"          daily_count as integer,",
+				"          date as date,",
+				"          rate_14_day as double,",
+				"          source as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> RawCasesDeathsFile",
+				"source(output(",
+				"          country as string,",
+				"          country_code_2_digit as string,",
+				"          country_code_3_digit as string,",
+				"          continent as string,",
+				"          population as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> RawCountryLookUpSource",
+				"RawCasesDeathsFile filter(continent=='Europe'&& not(isNull(country_code))) ~> FilterOnlEuropeContinent",
+				"FilterOnlEuropeContinent select(mapColumn(",
+				"          country,",
+				"          country_code,",
+				"          population,",
+				"          indicator,",
+				"          daily_count,",
+				"          reported_date = date,",
+				"          source",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectRequiredFields",
+				"SelectRequiredFields pivot(groupBy(country,",
+				"          country_code,",
+				"          population,",
+				"          reported_date,",
+				"          source),",
+				"     pivotBy(indicator, ['confirmed cases', 'deaths']),",
+				"     Count = sum(daily_count),",
+				"     columnNaming: '$N_$V',",
+				"     lateral: true) ~> PivotForIndicator",
+				"PivotForIndicator, RawCountryLookUpSource lookup(PivotForIndicator@country == RawCountryLookUpSource@country,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> LookUpCountry",
+				"LookUpCountry select(mapColumn(",
+				"          country = PivotForIndicator@country,",
+				"          country_code_2_digit,",
+				"          country_code_3_digit,",
+				"          population = PivotForIndicator@population,",
+				"          Count_confirmed = {Count_confirmed cases},",
+				"          Count_deaths,",
+				"          reported_date,",
+				"          source",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectSinkColumns",
+				"SelectSinkColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['cases_deaths_processed.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> SinkCasesDeathsProcessed"
+			]
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "covid-reporting-adf-ghoshrahul",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "25c88fc4-c21e-49d3-bfe5-bab3dd332a93",
+		"tenantId": "7e1ce06e-ca5b-418f-851f-fe949eb7b1f1"
+	}
+}

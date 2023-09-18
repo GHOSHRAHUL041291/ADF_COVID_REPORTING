@@ -1,0 +1,25 @@
+{
+	"name": "tr_transfer_cases_deaths_raw_to_processed",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_raw_to_processed_cases_deaths_dataset",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-09-05T00:00:00",
+				"endTime": "2023-09-06T20:53:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}

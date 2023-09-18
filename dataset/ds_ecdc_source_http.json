@@ -1,0 +1,43 @@
+{
+	"name": "ds_ecdc_source_http",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_http_opendata_ecdc_europa_eu",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"pECDCSourceBaseURL": {
+					"value": "@dataset().pECDCSourceBaseURL",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"pSourceFileRelativeURL": {
+				"type": "String"
+			},
+			"pECDCSourceBaseURL": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Prod"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@dataset().pSourceFileRelativeURL",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
